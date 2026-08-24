@@ -7,80 +7,101 @@ class EIClassesApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'EI CLASSES - DEEPANSH AI PRO',
-      theme: ThemeData(primarySwatch: Colors.indigo, useMaterial3: true),
-      home: HomeScreen(),
+      title: 'EI CLASSES',
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      home: LoginPage(),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> features = [
-    {"name": "AI Doubt Solver", "icon": Icons.lightbulb, "color": Colors.orange},
-    {"name": "Image to Answer", "icon": Icons.camera_alt, "color": Colors.blue},
-    {"name": "Voice AI Chat", "icon": Icons.mic, "color": Colors.red},
-    {"name": "PDF Notes Maker", "icon": Icons.picture_as_pdf, "color": Colors.green},
-    {"name": "Exam Mode", "icon": Icons.quiz, "color": Colors.purple},
-    {"name": "Homework Checker", "icon": Icons.check_circle, "color": Colors.teal},
-    {"name": "Daily Quiz", "icon": Icons.emoji_events, "color": Colors.amber},
-    {"name": "Chat History", "icon": Icons.history, "color": Colors.indigo},
-  ];
+class LoginPage extends StatefulWidget {
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final userCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("EI CLASSES 🚀", style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
-      ),
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(20),
-            color: Colors.indigo.shade50,
-            child: Column(
-              children: [
-                Text("DEEPANSH AI PRO", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.indigo)),
-                SizedBox(height: 5),
-                Text("India's Smartest AI Study App - 41+ Features", style: TextStyle(color: Colors.black54)),
-              ],
+      body: Padding(
+        padding: EdgeInsets.all(24),
+        child: Center(
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.school, size: 80, color: Colors.deepPurple),
+            SizedBox(height: 10),
+            Text("EI-CLASSES", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            Text("DEEPANSHU ARYA", style: TextStyle(color: Colors.grey)),
+            SizedBox(height: 30),
+            TextField(controller: userCtrl, decoration: InputDecoration(labelText: "Username", border: OutlineInputBorder(), prefixIcon: Icon(Icons.person))),
+            SizedBox(height: 15),
+            TextField(controller: passCtrl, obscureText: true, decoration: InputDecoration(labelText: "Password", border: OutlineInputBorder(), prefixIcon: Icon(Icons.lock))),
+            SizedBox(height: 25),
+            SizedBox(width: double.infinity, height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (userCtrl.text == "admin" && passCtrl.text == "1234") {
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Wrong! Use admin / 1234")));
+                  }
+                },
+                child: Text("LOGIN", style: TextStyle(fontSize: 18)),
+              ),
             ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              padding: EdgeInsets.all(12),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.5, crossAxisSpacing: 12, mainAxisSpacing: 12),
-              itemCount: features.length,
-              itemBuilder: (context, i) {
-                return Card(
-                  elevation: 4,
-                  child: InkWell(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${features[i]['name']} Coming Soon! AI Active 🤖")));
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(features[i]['icon'], size: 40, color: features[i]['color']),
-                        SizedBox(height: 10),
-                        Text(features[i]['name'], style: TextStyle(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                );
-              },
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Map<String, String>> students = [];
+
+  void addStudent() {
+    var nameC = TextEditingController();
+    var feesC = TextEditingController();
+    var phoneC = TextEditingController();
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: Text("Add Student"),
+      content: Column(mainAxisSize: MainAxisSize.min, children: [
+        TextField(controller: nameC, decoration: InputDecoration(labelText: "Name")),
+        TextField(controller: feesC, decoration: InputDecoration(labelText: "Fees"), keyboardType: TextInputType.number),
+        TextField(controller: phoneC, decoration: InputDecoration(labelText: "Phone")),
+      ]),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel")),
+        ElevatedButton(onPressed: () {
+          setState(() { students.add({"name": nameC.text, "fees": feesC.text, "phone": phoneC.text}); });
+          Navigator.pop(context);
+        }, child: Text("Save")),
+      ],
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("EI-Classes Students (${students.length})")),
+      body: students.isEmpty
+       ? Center(child: Text("No Students Yet\nClick + to Add", textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: Colors.grey)))
+        : ListView.builder(itemCount: students.length, itemBuilder: (c,i) => Card(
+            child: ListTile(
+              leading: CircleAvatar(child: Text(students[i]['name']![0].toUpperCase())),
+              title: Text(students[i]['name']!),
+              subtitle: Text("Fees: ₹${students[i]['fees']} | ${students[i]['phone']}"),
+              trailing: IconButton(icon: Icon(Icons.delete, color: Colors.red), onPressed: (){ setState((){ students.removeAt(i); }); }),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        label: Text("Ask AI Doubt"),
-        icon: Icon(Icons.chat_bubble),
-      ),
+          )),
+      floatingActionButton: FloatingActionButton(onPressed: addStudent, child: Icon(Icons.add)),
     );
   }
 }
